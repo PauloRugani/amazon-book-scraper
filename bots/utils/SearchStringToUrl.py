@@ -1,5 +1,5 @@
 import re
-from amazon import Constants
+
 
 class SearchStringToUrl:
     def __init__(self, search_string: str) -> None:
@@ -14,7 +14,7 @@ class SearchStringToUrl:
 
     def __string_to_url(self, clean_string: str, filter: str) -> str:
         query = clean_string.replace("+", "%2B").replace(" ", "+")
-        url_string = f'{Constants.URL}s?k={query}{filter}'
+        url_string = f'https://www.amazon.com.br/s?k={query}{filter}'
         return url_string
 
     def get_url(self, filter) -> str:

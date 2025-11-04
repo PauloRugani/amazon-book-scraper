@@ -1,8 +1,8 @@
 from playwright.sync_api import Playwright, ElementHandle, BrowserContext
-from amazon import Constants, PlaywrightConstants, SearchStringToUrl
+from bots import SearchStringToUrl
+from ..playwright_bot import PlaywrightConstants, PlaywrightHandler
 from typing import List, Dict
 import pandas as pd
-from .utils.PlaywrightHandler import PlaywrightHandler
 import os
 from time import sleep
 
@@ -15,10 +15,10 @@ class AmazonBookExtractorPw:
 
     @staticmethod
     def save_to_csv(data: List[Dict[str, str]]) -> None:
-        if not os.path.exists('./amazon/bots/playwright/data'):
-            os.mkdir('./amazon/bots/playwright/data')
+        if not os.path.exists(PlaywrightConstants.DB_PATH):
+            os.mkdir(PlaywrightConstants.DB_PATH)
         df = pd.DataFrame(data)
-        df.to_csv('./amazon/bots/playwright/data/books_data.csv', index=False, encoding='utf-8')
+        df.to_csv(os.path.join(PlaywrightConstants.DB_PATH, 'books_data.csv'), index=False, encoding='utf-8')
 
     def __get_books_data(self, context: BrowserContext, book_list: List[ElementHandle]):
         books: List[Dict[str, str]] = []
@@ -30,7 +30,7 @@ class AmazonBookExtractorPw:
                     continue
 
                 book_page = context.new_page()
-                book_page.goto(Constants.URL + href)
+                book_page.goto('https://www.amazon.com.br/' + href)
 
                 try:
                     book_title: str = book_page.locator(PlaywrightConstants.BOOK_TITLE).inner_text(timeout=2000)
@@ -64,7 +64,7 @@ class AmazonBookExtractorPw:
                                     [book_page.locator(f'//*[@id="bylineInfo"]/span[{i}]/a').inner_text(timeout=2000)
                                     for i in range(1, len_contributions + 1)] 
                                     if len_contributions > 1 
-                                    else [book_page.locator('//*[@id="bylineInfo"]/span/a').inner_text(timeout=2000)]
+                                    else [book_page.locator(PlaywrightConstants.LIST_AUTHORS).inner_text(timeout=2000)]
                                     )
                 except Exception:
                     list_authors = []

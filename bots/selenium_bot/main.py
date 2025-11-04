@@ -5,7 +5,8 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from .utils.SeleniumHandler import SeleniumHandler
-from amazon import SeleniumConstants, SearchStringToUrl
+from ..selenium_bot import SeleniumHandler, SeleniumConstants
+from bots import SearchStringToUrl
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,10 +20,10 @@ class AmazonBookExtractorSel:
 
     @staticmethod
     def save_to_csv(data: List[Dict[str, str]]) -> None:
-        if not os.path.exists('./amazon/bots/selenium/data'):
-            os.mkdir('./amazon/bots/selenium/data')
+        if not os.path.exists(SeleniumConstants.DB_PATH):
+            os.mkdir(SeleniumConstants.DB_PATH)
         df = pd.DataFrame(data)
-        df.to_csv('./amazon/bots/selenium/data/books_data.csv', index=False, encoding='utf-8')
+        df.to_csv(os.path.join(SeleniumConstants.DB_PATH, 'books_data.csv'), index=False, encoding='utf-8')
 
     def __get_books_data(self, book_list: List[WebElement]):
         books: List[Dict[str, str]] = []
@@ -73,7 +74,7 @@ class AmazonBookExtractorSel:
                                     [self.__selenium_handler.driver.find_element(By.XPATH, f'//*[@id="bylineInfo"]/span[{i}]/a').text
                                     for i in range(1, len_contributions + 1)] 
                                     if len_contributions > 1 
-                                    else [self.__selenium_handler.driver.find_element(By.XPATH, '//*[@id="bylineInfo"]/span/a').text]
+                                    else [self.__selenium_handler.driver.find_element(By.XPATH, SeleniumConstants.LIST_AUTHORS).text]
                                     )
                 except Exception:
                     list_authors = []
